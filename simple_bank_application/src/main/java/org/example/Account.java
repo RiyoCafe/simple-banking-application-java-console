@@ -77,8 +77,6 @@ public class Account {
                 ", creationDate=" + creationDate +
                 ", balance=" + balance +
                 ", accountType=" + accountType +
-                ", accountOpeningLimit=" + accountOpeningLimit +
-                ", accountMaintenanceLimit=" + accountMaintenanceLimit +
                 '}';
     }
 }
