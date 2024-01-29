@@ -44,5 +44,33 @@ public final class Bank {
             System.out.println(accounts.get(i).toString());
         }
     }
+    private boolean checkExistence(String name, String accountNumber){
+        Account account = accountNumberToAccount.get(accountNumber);
+        if(account == null) return false;
+        if(!account.getName().equals(name)) return false;
+        return true;
+    }
+    public boolean updateAccount(String name,String accountNumber){
+        if(checkExistence(name, accountNumber)){
+
+        }
+        return true;
+    }
+    public boolean deleteAccount(String name,String accountNumber){
+        if(checkExistence(name,accountNumber))  {
+            accountNumberToAccount.remove(accountNumber);
+            List<Account> accounts = userToAccount.get(name);
+            for(int i = 0;i<accounts.size();i++){
+                if(accounts.get(i).getName().equals(name)){
+                    accounts.remove(i);
+                    break;
+                }
+            }
+            userToAccount.remove(name);
+            if(accounts != null)    userToAccount.put(name,accounts);
+            return true;
+        }
+        return false;
+    }
 
 }
