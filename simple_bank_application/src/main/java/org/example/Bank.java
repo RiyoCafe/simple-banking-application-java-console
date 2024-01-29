@@ -72,5 +72,27 @@ public final class Bank {
         }
         return false;
     }
+    public boolean depositInAccount(String name,String accountNumber,double amount){
+        if(checkExistence(name, accountNumber)){
+            Account account = accountNumberToAccount.get(accountNumber);
+            double newBalance = account.getBalance() + amount;
+            account.setBalance(newBalance);
+
+            accountNumberToAccount.put(accountNumber,account);
+
+            List<Account> existingAccounts = userToAccount.get(name);
+            userToAccount.remove(name);
+            for(int i=0;i<existingAccounts.size();i++){
+                if(existingAccounts.get(i).getName().equals(name)){
+                    existingAccounts.remove(i);
+                    break;
+                }
+            }
+            existingAccounts.add(account);
+            userToAccount.put(name,existingAccounts);
+            return true;
+        }
+        return false;
+    }
 
 }
