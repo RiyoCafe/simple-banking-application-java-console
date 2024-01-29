@@ -38,5 +38,11 @@ public final class Bank {
         accountNumberToAccount.put(newAccountUuid,createdAccount);
 
     }
+    public void displayAccounts(String name){
+        List<Account> accounts = userToAccount.get(name);
+        for(int i=0;i<accounts.size();i++){
+            System.out.println(accounts.get(i).toString());
+        }
+    }
 
 }
