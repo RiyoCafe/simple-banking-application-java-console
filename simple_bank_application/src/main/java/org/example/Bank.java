@@ -18,7 +18,7 @@ public final class Bank {
         return INSTANCE;
     }
 
-    public void createAccount(String name, double balance,String type){
+    public boolean createAccount(String name, double balance,String type){
         // The new account number will be existing maximum account number + 1
         accountCnt++;
         String newAccountUuid = Integer.toString(accountCnt);
@@ -34,8 +34,10 @@ public final class Bank {
         else{
             createdAccount = new CurrentAccount(name,newAccountUuid,balance);
         }
+        if(createdAccount.getAccountOpeningLimit()>balance) return false;
         userToAccount.get(name).add(createdAccount);
         accountNumberToAccount.put(newAccountUuid,createdAccount);
+        return true;
 
     }
     public void displayAccounts(String name){
@@ -72,26 +74,44 @@ public final class Bank {
         }
         return false;
     }
+    private void updateAccount(Account account, double newBalance){
+        account.setBalance(newBalance);
+
+        accountNumberToAccount.put(account.getNumber(),account);
+
+        List<Account> existingAccounts = userToAccount.get(name);
+        userToAccount.remove(name);
+        for(int i=0;i<existingAccounts.size();i++){
+            if(existingAccounts.get(i).getName().equals(name)){
+                existingAccounts.remove(i);
+                break;
+            }
+        }
+        existingAccounts.add(account);
+        userToAccount.put(name,existingAccounts);
+    }
     public boolean depositInAccount(String name,String accountNumber,double amount){
         if(checkExistence(name, accountNumber)){
             Account account = accountNumberToAccount.get(accountNumber);
             double newBalance = account.getBalance() + amount;
-            account.setBalance(newBalance);
-
-            accountNumberToAccount.put(accountNumber,account);
-
-            List<Account> existingAccounts = userToAccount.get(name);
-            userToAccount.remove(name);
-            for(int i=0;i<existingAccounts.size();i++){
-                if(existingAccounts.get(i).getName().equals(name)){
-                    existingAccounts.remove(i);
-                    break;
-                }
-            }
-            existingAccounts.add(account);
-            userToAccount.put(name,existingAccounts);
+            updateAccount(account,newBalance);
             return true;
         }
+        return false;
+    }
+    public boolean withdrawFromAccount(String name,String accountNumber,double amount){
+        if(checkExistence(name, accountNumber)){
+            Account account = accountNumberToAccount.get(accountNumber);
+            double newAvailableBalance = account.getBalance() - amount;
+            if(newAvailableBalance< account.getAccountMaintenanceLimit())   {
+                System.out.println("You have a maintenance limit of "+account.getAccountMaintenanceLimit()+" taka");
+                return false;
+            }
+            updateAccount(account,newAvailableBalance);
+            return true;
+
+        }
+        System.out.println("Error occurred!!!");
         return false;
     }
 
