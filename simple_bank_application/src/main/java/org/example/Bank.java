@@ -1,5 +1,6 @@
 package org.example;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 // Assuming that every user has unique name to reduce its complexity.
@@ -12,6 +13,8 @@ public final class Bank {
 
     private Bank(){
         accountCnt = 0;
+        userToAccount = new HashMap<>();
+        accountNumberToAccount = new HashMap<>();
     }
     public static Bank getInstance(){
         if(INSTANCE == null)    INSTANCE = new Bank();
@@ -34,8 +37,17 @@ public final class Bank {
         else{
             createdAccount = new CurrentAccount(name,newAccountUuid,balance);
         }
-        if(createdAccount.getAccountOpeningLimit()>balance) return false;
-        userToAccount.get(name).add(createdAccount);
+        boolean validation = createdAccount.validateOpening();
+        if(validation == false) return false;
+        if(userToAccount.containsKey(name)){
+            userToAccount.get(name).add(createdAccount);
+        }
+        else{
+            List<Account> accounts = new ArrayList<>();
+            accounts.add(createdAccount);
+            userToAccount.put(name,accounts);
+        }
+
         accountNumberToAccount.put(newAccountUuid,createdAccount);
         return true;
 
@@ -52,18 +64,49 @@ public final class Bank {
         if(!account.getName().equals(name)) return false;
         return true;
     }
-    public boolean updateAccount(String name,String accountNumber){
+    private boolean checkMigration(Account account){
+        return account.validateMigrate();
+    }
+    public Account updateExistingAccount(String name,String accountNumber,String type){
         if(checkExistence(name, accountNumber)){
+            Account account = accountNumberToAccount.get(accountNumber);
+            AccountType updatedAccountType = AccountType.valueOf(type);
+            Account temp = null;
+            if(updatedAccountType == AccountType.SAVINGS){
+                account = new SavingsAccount(name,accountNumber,account.getBalance());
+            }
+            else if(updatedAccountType == AccountType.SALARY){
+                account = new SalaryAccount(name,accountNumber,account.getBalance());
+            }
+            else{
+                account = new CurrentAccount(name,accountNumber,account.getBalance());
+            }
+
+            if(checkMigration(account) == false) return null;
+//            AccountType updatedAccountType = AccountType.valueOf(type);
+//            account.setAccountType(updatedAccountType);
+            accountNumberToAccount.put(accountNumber,account);
+            List<Account> accounts = userToAccount.get(name);
+            userToAccount.remove(name);
+            for(int i =0;i<accounts.size();i++){
+                if(accounts.get(i).getNumber().equals(accountNumber)){
+                    accounts.remove(i);
+                    break;
+                }
+            }
+            accounts.add(account);
+            userToAccount.put(name,accounts);
+            return account;
 
         }
-        return true;
+        return null;
     }
     public boolean deleteAccount(String name,String accountNumber){
         if(checkExistence(name,accountNumber))  {
             accountNumberToAccount.remove(accountNumber);
             List<Account> accounts = userToAccount.get(name);
             for(int i = 0;i<accounts.size();i++){
-                if(accounts.get(i).getName().equals(name)){
+                if(accounts.get(i).getNumber().equals(accountNumber)){
                     accounts.remove(i);
                     break;
                 }
@@ -76,13 +119,13 @@ public final class Bank {
     }
     private void updateAccount(Account account, double newBalance){
         account.setBalance(newBalance);
-
-        accountNumberToAccount.put(account.getNumber(),account);
+        String accountNumber = account.getNumber();
+        accountNumberToAccount.put(accountNumber,account);
 
         List<Account> existingAccounts = userToAccount.get(account.getName());
         userToAccount.remove(account.getName());
         for(int i=0;i<existingAccounts.size();i++){
-            if(existingAccounts.get(i).getName().equals(account.getName())){
+            if(existingAccounts.get(i).getNumber().equals(accountNumber)){
                 existingAccounts.remove(i);
                 break;
             }
@@ -103,11 +146,13 @@ public final class Bank {
         if(checkExistence(name, accountNumber)){
             Account account = accountNumberToAccount.get(accountNumber);
             double newAvailableBalance = account.getBalance() - amount;
-            if(newAvailableBalance< account.getAccountMaintenanceLimit())   {
+            boolean validateWithdraw = account.validateDecrease(amount);
+            if(validateWithdraw == false)   {
                 System.out.println("You have a maintenance limit of "+account.getAccountMaintenanceLimit()+" taka");
                 return false;
             }
             updateAccount(account,newAvailableBalance);
+            System.out.println("Here is your "+amount+" taka.");
             return true;
 
         }

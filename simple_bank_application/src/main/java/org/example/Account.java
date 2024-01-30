@@ -16,6 +16,16 @@ public class Account {
         this.creationDate = new java.util.Date();
         this.balance = balance;
     }
+    public boolean validateOpening()
+    {
+        return balance>=accountOpeningLimit;
+    }
+    public boolean validateDecrease(double amount){
+        return balance-amount>=accountMaintenanceLimit;
+    }
+    public boolean validateMigrate(){
+        return balance>=accountMaintenanceLimit;
+    }
 
     public String getName() {
         return name;

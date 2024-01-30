@@ -19,20 +19,24 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         String name="";
         String accountNumber = "";
+        String type="";
+        System.out.println("Please enter your name: ");
+        name = scanner.next();
         while (true) {
             System.out.println("Please enter your option: ");
             int option = scanner.nextInt();
+            if(option<1 || option>8) continue;
             switch (option) {
-                System.out.println("Please enter your name: ");
-                name = scanner.next();
-
                 case 1:
                     System.out.println("Please enter your account type: \n" +
-                            "1. Savings\n" +
-                            "2. Current\n" +
-                            "3. Salary\n");
+                            "1. Savings(Opening Limit : "+CONSTANTS.SAVINGS_OPENING_LIMIT+" , Maintenance Limit : "
+                                    +CONSTANTS.SAVINGS_MAINTENANCE_LIMIT+")\n" +
+                            "2. Current(Opening Limit : "+CONSTANTS.CURRENT_OPENING_LIMIT+" , Maintenance Limit : "
+                            +CONSTANTS.CURRENT_MAINTENANCE_LIMIT+")\n" +
+                            "3. Salary(Opening Limit : "+CONSTANTS.SALARY_OPENING_LIMIT+" , Maintenance Limit : "
+                            +CONSTANTS.SALARY_MAINTENANCE_LIMIT+")\n");
                     int accountType = scanner.nextInt();
-                    String type;
+
                     System.out.println("Please enter your initial balance: ");
                     double initialBalance = scanner.nextDouble();
                     if(accountType == 1)    type = "SAVINGS";
@@ -43,13 +47,37 @@ public class Main {
                         break;
                     }
                     bank.createAccount(name, initialBalance,type);
+                    System.out.println("Account Created Successfully!!");
                     break;
                 case 2:
                     bank.displayAccounts(name);
                     break;
                 case 3:
-
-                    bank.updateAccount();
+                    System.out.println("Please Enter your Account Number: ");
+                    accountNumber = scanner.next();
+                    System.out.println("Please Enter your updated account type:\n "+
+                            "1. Savings(Opening Limit : "+CONSTANTS.SAVINGS_OPENING_LIMIT+" , Maintenance Limit : "
+                            +CONSTANTS.SAVINGS_MAINTENANCE_LIMIT+")\n" +
+                            "2. Current(Opening Limit : "+CONSTANTS.CURRENT_OPENING_LIMIT+" , Maintenance Limit : "
+                            +CONSTANTS.CURRENT_MAINTENANCE_LIMIT+")\n" +
+                            "3. Salary(Opening Limit : "+CONSTANTS.SALARY_OPENING_LIMIT+" , Maintenance Limit : "
+                            +CONSTANTS.SALARY_MAINTENANCE_LIMIT+")\n");
+                    int updated_option = scanner.nextInt();
+                    if(updated_option == 1) type = "SAVINGS";
+                    else if(updated_option == 2) type = "CURRENT";
+                    else if (updated_option ==3)  type = "SALARY";
+                    else{
+                        System.out.println("Error Occurred!!!");
+                        break;
+                    }
+                    Account account = bank.updateExistingAccount(name,accountNumber,type);
+                    if(account != null){
+                        System.out.println("Account Updated Successfully !");
+                        System.out.println(account.toString());
+                    }
+                    else{
+                        System.out.println("Error Occurred!!!");
+                    }
                     break;
                 case 4:
                     System.out.println("Please Enter your Account Number: ");
@@ -95,7 +123,7 @@ public class Main {
                     }
                     break;
                 case 8:
-                    System.out.println("Thank you for using our services!!!");
+                    System.out.println("Thank you for using our service!!!");
                     System.exit(0);
                 default:
                     System.out.println("Invalid option. Please try again.");
