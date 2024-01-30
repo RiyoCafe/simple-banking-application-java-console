@@ -90,14 +90,14 @@ public final class Bank {
         existingAccounts.add(account);
         userToAccount.put(account.getName(),existingAccounts);
     }
-    public boolean depositInAccount(String name,String accountNumber,double amount){
+    public Account depositInAccount(String name,String accountNumber,double amount){
         if(checkExistence(name, accountNumber)){
             Account account = accountNumberToAccount.get(accountNumber);
             double newBalance = account.getBalance() + amount;
             updateAccount(account,newBalance);
-            return true;
+            return account;
         }
-        return false;
+        return null;
     }
     public boolean withdrawFromAccount(String name,String accountNumber,double amount){
         if(checkExistence(name, accountNumber)){
@@ -114,14 +114,13 @@ public final class Bank {
         System.out.println("Error occurred!!!");
         return false;
     }
-    public boolean searchAccount(String name,String accountNumber)
+    public Account searchAccount(String name,String accountNumber)
     {
         if(checkExistence(name, accountNumber)){
             Account account = accountNumberToAccount.get(accountNumber);
-            System.out.println(account.toString());
-            return true;
+            return account;
         }
-        return false;
+        return null;
     }
 
 }
