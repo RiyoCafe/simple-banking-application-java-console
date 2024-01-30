@@ -2,7 +2,7 @@ package org.example;
 
 import java.util.HashMap;
 import java.util.List;
-
+// Assuming that every user has unique name to reduce its complexity.
 public final class Bank {
     private String name;
     private static Bank INSTANCE;
@@ -79,16 +79,16 @@ public final class Bank {
 
         accountNumberToAccount.put(account.getNumber(),account);
 
-        List<Account> existingAccounts = userToAccount.get(name);
-        userToAccount.remove(name);
+        List<Account> existingAccounts = userToAccount.get(account.getName());
+        userToAccount.remove(account.getName());
         for(int i=0;i<existingAccounts.size();i++){
-            if(existingAccounts.get(i).getName().equals(name)){
+            if(existingAccounts.get(i).getName().equals(account.getName())){
                 existingAccounts.remove(i);
                 break;
             }
         }
         existingAccounts.add(account);
-        userToAccount.put(name,existingAccounts);
+        userToAccount.put(account.getName(),existingAccounts);
     }
     public boolean depositInAccount(String name,String accountNumber,double amount){
         if(checkExistence(name, accountNumber)){
@@ -112,6 +112,15 @@ public final class Bank {
 
         }
         System.out.println("Error occurred!!!");
+        return false;
+    }
+    public boolean searchAccount(String name,String accountNumber)
+    {
+        if(checkExistence(name, accountNumber)){
+            Account account = accountNumberToAccount.get(accountNumber);
+            System.out.println(account.toString());
+            return true;
+        }
         return false;
     }
 
